@@ -19,7 +19,7 @@ def clients(request):
       @param: email 
       """
     if request.method == 'POST':
-        if request.POST.get('name'):
+        if request.POST.get('name') and request.POST.get('email'):
             client = Client()
             client.name = request.POST.get('name')
             client.surname = request.POST.get('surname')
@@ -40,7 +40,7 @@ def requests(request):
       @param: client_id  
       """
     if request.method == 'POST':
-        if request.POST.get('request'):
+        if request.POST.get('request') and request.POST.get('client_id'):
             request_object = Request()
             request_object.name = request.POST.get('request')
             request_object.submitted = False
@@ -80,7 +80,7 @@ def client_view(request):
             client.delete()
             clients = Client.objects.all()
             return render(request, 'clients.html', {"clients": clients})
-        elif request.POST.get('name'):
+        elif request.POST.get('name') and request.POST.get('client_id'):
             client = Client()
             client_id = request.POST.get('client_id')
             client.id = client_id
@@ -118,7 +118,7 @@ def client_view_request(request):
                 documents = client.documents.all()
                 requests = client.requests.all()
             return render(request, 'client_view.html', {"requests": requests, "clients": clients, "documents": documents})
-        elif request.POST.get('name'):
+        elif request.POST.get('name') and request.POST.get('request_id'):
             request_object = Request()
             request_object.id = request.POST.get('request_id')
             request_object.name = request.POST.get('name')
@@ -170,7 +170,9 @@ def client_auth(request):
         if request.POST.get('email'):
             client_email = request.POST.get('email')
             client = Client.objects.get(email=client_email)
-            return render(request, 'client_pin.html', {"client_id": client.id})
+            return render(request, 'client_pin.html', {"client_id": client.id}) if client else render(request, 'client_auth.html')
+        else:
+            return render(request, 'client_auth.html')
     else:
         return render(request, 'client_auth.html')
 
