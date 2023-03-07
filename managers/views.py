@@ -5,7 +5,6 @@ from .models import Client, Document, Request
 from django.shortcuts import render
 from django.http import HttpResponse, FileResponse
 from .forms import DocumentForm
-from .functions.functions import handle_uploaded_file
 import datetime
 import os
 import mimetypes
