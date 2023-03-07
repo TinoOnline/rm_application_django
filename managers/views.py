@@ -189,6 +189,14 @@ def client_pin(request):
 
 
 def doc_form(request):
+    """ This function handles the uploading of the files, 
+        the user can upload files recursively 
+        Retrieve File Parameters
+        @param: File
+        @param: client_id
+        @param: request_id
+
+    """
     if request.method == 'POST':
         document = DocumentForm(request.POST, request.FILES)
         if document.is_valid():
@@ -216,6 +224,12 @@ def doc_form(request):
 
 
 def show_file(request):
+    """ This function handles the viewing of PDFs, 
+        else it simply downloads the file
+        Retrieve File Parameters
+        @param: name (file name)
+
+    """
     if request.method == 'POST':
         filename = request.POST.get('name')
         filepath = os.path.join('', filename)
