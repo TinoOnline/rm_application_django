@@ -1,3 +1,5 @@
+# Author Tinotenda Kurimwi 06 March 2023
+
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Client, Document, Request
 from django.shortcuts import render
@@ -6,10 +8,17 @@ from .forms import DocumentForm
 from .functions.functions import handle_uploaded_file
 import datetime
 import os
-# Create your views here.
+import mimetypes
 
 
 def clients(request):
+    """ This function handles the creation of clients
+      as well as viewing all clients together 
+      User Creation Form Parameters
+      @param: name 
+      @param: surname 
+      @param: email 
+      """
     if request.method == 'POST':
         if request.POST.get('name'):
             client = Client()
@@ -25,6 +34,12 @@ def clients(request):
 
 
 def requests(request):
+    """ This function handles the creation of requests
+      as well as viewing all requests together 
+      Request Creation Form Parameters
+      @param: request (the name of the request) 
+      @param: client_id  
+      """
     if request.method == 'POST':
         if request.POST.get('request'):
             request_object = Request()
@@ -47,11 +62,18 @@ def documents(request):
     return render(request, 'documents.html', {"documents": documents})
 
 
-def chose_client(request):
-    return redirect('client_view', client_id=request.POST.get('client_id', 0))
-
-
 def client_view(request):
+    """ This function handles the updating of client's information, 
+    as well as deleting a client which deletes all data 
+    Client Update Form Parameters
+    @param: client_id
+    @param: name 
+    @param: surname  
+    @param: email  
+
+    Client Delete Form Parameters
+    @param: delete_id (this is the client id)
+    """
     if request.method == 'POST':
         if request.POST.get('delete_id'):
             client = Client()
@@ -67,23 +89,25 @@ def client_view(request):
             client.surname = request.POST.get('surname')
             client.email = request.POST.get('email')
             client.save()
-            clients = Client.objects.filter(id=client_id)
-            for client in clients:
-                documents = client.documents.all()
-                requests = client.requests.all()
-            return render(request, 'client_view.html', {"requests": requests, "clients": clients, "documents": documents})
-        else:
-            client_id = request.POST.get('client_id')
-            clients = Client.objects.filter(id=client_id)
-            requests = []
-            documents = []
-            for client in clients:
-                documents = client.documents.all()
-                requests = client.requests.all()
-            return render(request, 'client_view.html', {"requests": requests, "clients": clients, "documents": documents})
+
+        client_id = request.POST.get('client_id')
+        clients = Client.objects.filter(id=client_id)
+        for client in clients:
+            documents = client.documents.all()
+            requests = client.requests.all()
+        return render(request, 'client_view.html', {"requests": requests, "clients": clients, "documents": documents})
 
 
 def client_view_request(request):
+    """ This function handles the updating of request information, 
+        as well as deleting a request which deletes all files 
+        Request Update Form Parameters
+        @param: request_id
+        @param: name 
+
+        Request Delete Form Parameters
+        @param: delete_id (this is the request id)
+    """
     if request.method == 'POST':
         if request.POST.get('delete_id'):
             request_object = Request()
@@ -102,19 +126,13 @@ def client_view_request(request):
             request_object.save(update_fields=['name'])
             request_object = Request.objects.get(id=request_object.id)
 
-            clients = Client.objects.filter(id=request_object.client.id)
-            for client in clients:
-                documents = client.documents.all()
-                requests = client.requests.all()
-            return render(request, 'client_view.html', {"requests": requests, "clients": clients, "documents": documents})
-        else:
-            request_object_id = request.POST.get('request_id')
-            request_object = Request.objects.get(id=request_object_id)
-            clients = Client.objects.filter(id=request_object.client.id)
-            for client in clients:
-                documents = client.documents.all()
-                requests = client.requests.all()
-            return render(request, 'client_view.html', {"requests": requests, "clients": clients, "documents": documents})
+        request_object_id = request.POST.get('request_id')
+        request_object = Request.objects.get(id=request_object_id)
+        clients = Client.objects.filter(id=request_object.client.id)
+        for client in clients:
+            documents = client.documents.all()
+            requests = client.requests.all()
+        return render(request, 'client_view.html', {"requests": requests, "clients": clients, "documents": documents})
 
 
 def client_view_doc(request):
@@ -181,11 +199,16 @@ def doc_form(request):
             document_object.client_id = request.POST.get('client_id')
             document_object.request_id = request.POST.get('request_id')
             document_object.save()
-            handle_uploaded_file(request.FILES['file'])
+
+            request_object = Request()
+            request_object.id = request.POST.get('request_id')
+            request_object.submitted = True
+            request_object.save(update_fields=['submitted'])
+
         client_id = request.POST.get('client_id')
         clients = Client.objects.filter(id=client_id)
         for client in clients:
-            requests = client.requests.filter()
+            requests = client.requests.all()
         document = DocumentForm()
         return render(request, "doc_form.html", {'requests': requests, 'client_id': client_id, "form": document})
     else:
@@ -194,5 +217,15 @@ def doc_form(request):
 
 def show_file(request):
     if request.method == 'POST':
-        filepath = os.path.join('', request.POST.get('name'))
-        return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
+        filename = request.POST.get('name')
+        filepath = os.path.join('', filename)
+        if(filepath[-3:] == "pdf"):
+            return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        filepath = os.path.join(BASE_DIR, filename)
+        with open(filepath, 'rb') as f:
+            path = f.read()
+            mime_type, _ = mimetypes.guess_type(filepath)
+            response = HttpResponse(path, content_type=mime_type)
+            response['Content-Disposition'] = "attachment; filename=%s" % filename
+            return response

@@ -71,7 +71,7 @@
     </div>
     <div class="block is-full">
       <div class="container">
-        <h1 class="title is-4">Documents</h1>
+        <h1 class="title is-4">Files</h1>
       </div>
     </div>
     <div class="columns">
@@ -82,7 +82,7 @@
               <th>Doc Name</th>
               <th>Date Created</th>
               <th>Client Name</th>
-              <th>Document</th>
+              <th>Files</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -93,9 +93,17 @@
               <td>{{document.date}}</td>
               <td>{{document.client.name}}</td>
               <td>
-                <button class="button is-success is-light small"><a href="{{document.document}}" target="_blank">View File</a></button>
+                <form action="{% url 'show_file' %}" target="_blank" method="POST">
+                  {% csrf_token %}
+                  <button class="button is-success is-light small" type="submit" name="name" value="{{document.document}}">View File</button>
+                </form>
               </td>
-              <td><button class="button is-info is-warning small" type="submit">Delete User</button></td>
+              <td>
+                <form action="{% url 'client_view_doc' %}" method="POST">
+                  {% csrf_token %}
+                  <button class="button is-info is-warning small" type="submit" name="delete_id" value="{{document.id}}">Delete File</button>
+                </form>
+              </td>
             </tr>
             {% endfor%}
           </tbody>

@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 
 class Client(models.Model):
     """ # ? top level client model """
@@ -15,7 +13,7 @@ class Client(models.Model):
 
 
 class Request(models.Model):
-    """ #? second level requests associate with client """
+    """ #? second level requests associated with client """
     name = models.CharField(max_length=50, blank=False, null=False)
     submitted = models.BooleanField(default=False, blank=False)
     date_submitted = models.DateTimeField(auto_created=True, blank=False)

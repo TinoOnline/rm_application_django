@@ -40,7 +40,17 @@
             <form method="POST" class="post-form" action="{% url 'doc_form' %}" enctype="multipart/form-data">
               {% csrf_token %} {% comment %} <input id="id_document" name="document" type="file" /> {% endcomment %}
               <td>{{request.name}}</td>
-              <td>{{request.submitted}}</td>
+              <td>
+                {% if request.submitted%}
+                <button class="button is-success">
+                  <span class="icon is-small"> True </span>
+                </button>
+                {%else %}
+                <button class="button is-warning">
+                  <span class="icon is-small"> False </span>
+                </button>
+                {% endif %}
+              </td>
               <td>
                 <div>{{ form.as_p }}</div>
               </td>

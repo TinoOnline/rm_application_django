@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Include the Bulma CSS framework for styling -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
-    <title>Documents</title>
+    <title>Files</title>
   </head>
   <body>
     <section class="hero is-small is-success mb-4">
       
       <div class="hero-body columns">
         <div class="column iis-three-quarters is-vcentered">
-          <h1 class="title is-4">Dashboard</h1>
-          <p class="subtitle is-5">This page allows you to view all the documents submitted.</p>
+          <h1 class="title is-4">Files</h1>
+          <p class="subtitle is-5">This page allows you to view all the files submitted.</p>
         </div>
         <div class="column is-vcentered is-right">
           <button class="button small is-dark" ><a href="{% url 'clients' %}">All Clients</a></button>
@@ -29,7 +29,7 @@
           <th>Doc Name</th>
           <th>Date Created</th>
           <th>Client Name</th>
-          <th>Document</th>
+          <th>File</th>
           <th>Client</th>
         </tr>
       </thead> 
@@ -38,7 +38,7 @@
           <th>Doc Name</th>
           <th>Date Created</th>
           <th>Client Name</th>
-          <th>Document</th>
+          <th>File</th>
           <th>Client</th>
         </tr>
       </tfoot>
@@ -51,10 +51,13 @@
           <td> 
             <form action="{% url 'show_file' %}" target="_blank" method="POST">
               {% csrf_token %}
-              <button class="button is-success is-light small" type="submit" name="name" value={{document.document}}>< href="{% url 'show_file' %}" >View File</button>
+              <button class="button is-success is-light small" type="submit" name="name" value={{document.document}}>View File</button>
             </form>
           </td>
-          <td> <button class="button is-info is-light small">View Client</button></td>
+          <td>           <form action="{% url 'client_view' %}" method="POST">
+            {% csrf_token %}
+            <button class="button is-success is-light small" name="client_id" value="{{document.client.id}}">View client</button>
+          </form></td>
         </tr>
         {% endfor%}
        

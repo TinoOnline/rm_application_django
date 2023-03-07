@@ -82,7 +82,7 @@
               <th>Submited</th>
               <th>Date Submitted</th>
               <th>Actions</th>
-              <th>Documents</th>
+              <th>Files</th>
             </tr>
           </thead>
 
@@ -124,7 +124,7 @@
     </div>
     <div class="block is-full">
       <div class="container">
-        <h1 class="title is-4">Documents</h1>
+        <h1 class="title is-4">Files</h1>
       </div>
     </div>
     <div class="columns">
@@ -137,7 +137,7 @@
               <th>Date Created</th>
               <th>Client Name</th>
               <th>Action</th>
-              <th>Document</th>
+              <th>Files</th>
             </tr>
           </thead>
           <tbody>
@@ -150,7 +150,7 @@
               <td>
                 <form action="{% url 'client_view_doc' %}" method="POST">
                   {% csrf_token %}
-                  <button class="button is-info is-warning small" type="submit" name="delete_id" value="{{document.id}}">Delete Doc</button>
+                  <button class="button is-info is-warning small" type="submit" name="delete_id" value="{{document.id}}">Delete File</button>
                 </form>
               </td>
               <td>
