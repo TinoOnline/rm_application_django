@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Include the Bulma CSS framework for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+    <title>Client Dashboard</title>
+  </head>
+  <body>
+    <section class="hero is-small is-success mb-4">
+      
+      <div class="hero-body columns">
+        <div class="column iis-three-quarters is-vcentered">
+          <h1 class="title is-4">Dashboard</h1>
+          <p class="subtitle is-6">This page allows you to view all the clients which you have sent a request for documents to.</p>
+        </div>
+        <div class="column is-vcentered is-right">
+          <button class="button small is-dark js-modal-trigger" data-target="client_modal">Add Client</button>
+          <button class="button small is-dark" ><a href="{% url 'requests' %}">All Requests</a></button>
+          <button class="button small is-dark"><a href="{% url 'documents' %}">All Documents</a></button>
+        </div>
+      </div>
+    </section>
+    <section class="hero is-small is-success mb-4">
+      <input class="input" id="searchInput" type="text" placeholder="Search" onkeyup="searchFunction()">
+    </section>
+    <div class="block">
+    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="list_Table">
+      <thead>
+        <tr>
+          <th>Client ID</th>
+          <th>Name</th>
+          <th>Surname</th>
+          <th>Email Address</th>
+          <th>Action</th>
+        </tr>
+      </thead> 
+      <tfoot>
+        <tr>
+          <th>Client ID</th>
+          <th>Name</th>
+          <th>Surname</th>
+          <th>Email Address</th>
+          <th>Action</th>
+        </tr>
+      </tfoot>
+      <tbody>
+        {% for client in clients%}
+        <tr>
+          <td>{{client.id}}</td>
+          <td>{{client.name}}</td>
+          <td>{{client.surname}}</td>
+          <td>{{client.email}}</td>
+          {% comment %} <td> <button class="button is-info is-light small">View Requests</button></td> {% endcomment %}
+          <td>
+          <form action="{% url 'client_view' %}" method="POST">
+            {% csrf_token %}
+            <button class="button is-success is-light small" name="client_id" value="{{client.id}}">View client</button>
+          </form>
+        </td>
+        </tr>
+        {% endfor%}
+       
+      </tbody>
+    </table>
+    <div/>
+    <div id="client_modal" class="modal">
+      {% comment %} <div class="modal-background"></div> {% endcomment %}
+      <div class="box is-white" >
+      <div class="modal-content">
+        <form action="{% url 'clients' %}" method="POST">
+          {% csrf_token %}
+          <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+              <input class="input" type="text" name="name" placeholder="Name">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Surname</label>
+            <div class="control">
+              <input class="input" type="text" name="surname" placeholder="Surname">
+            </div>
+          </div>
+          
+          <div class="field">
+            <label class="label">Email</label>
+            <div class="control">
+              <input class="input" type="email" name="email" placeholder="Email input">
+            </div>
+          </div>
+        
+        <footer class="modal-card-foot is-white">
+          <button class="is-success button" type="submit">Save changes</button>
+          <button class="button">Cancel</button>
+        </footer>
+      </form>
+      </div>
+
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    </div>
+    <div class="container">
+      <div class="columns">{% block content %} {% endblock content %}</div>
+    </div>
+  </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Functions to open and close a modal
+      function openModal($el) {
+        $el.classList.add('is-active');
+      }
+    
+      function closeModal($el) {
+        $el.classList.remove('is-active');
+      }
+    
+      function closeAllModals() {
+        (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+          closeModal($modal);
+        });
+      }
+    
+      // Add a click event on buttons to open a specific modal
+      (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+        const modal = $trigger.dataset.target;
+        
+        const $target = document.getElementById(modal);
+    
+        $trigger.addEventListener('click', () => {
+          openModal($target);
+        });
+      });
+    
+      // Add a click event on various child elements to close the parent modal
+      (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+        const $target = $close.closest('.modal');
+    
+        $close.addEventListener('click', () => {
+          closeModal($target);
+        });
+      });
+    
+      // Add a keyboard event to close all modals
+      document.addEventListener('keydown', (event) => {
+        const e = event || window.event;
+    
+        if (e.keyCode === 27) { // Escape key
+          closeAllModals();
+        }
+      });
+    });
+  </script>
+  <script>
+    function searchFunction() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("searchInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("list_Table");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }       
+      }
+    }
+    </script>
+</html>

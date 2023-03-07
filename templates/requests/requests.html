@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Include the Bulma CSS framework for styling -->
+    {% comment %} <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script> {% endcomment %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+    <title>Requests</title>
+  </head>
+  <body>
+    <section class="hero is-small is-success mb-4">
+      
+      <div class="hero-body columns">
+        <div class="column iis-three-quarters is-vcentered">
+          <h1 class="title is-4">Request</h1>
+          <p class="subtitle is-5">This page allows you to view all the document requests which you have sent.</p>
+        </div>
+        <div class="column is-vcentered is-right">
+          <button class="button small is-dark js-modal-trigger" data-target="client_modal">Create Request</button>
+          <button class="button small is-dark" ><a href="{% url 'clients' %}">All Clients</a></button>
+          <button class="button small is-dark"><a href="{% url 'documents' %}">All Documents</a></button>
+        </div>
+      </div>
+    </section>
+    <div class="block">
+    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+      <thead>
+        <tr>
+          <th>Request ID</th>
+          <th>Doc Name</th>
+          <th>Submited</th>
+          <th>Date Submitted</th>
+          <th>Client Name</th>
+          <th>Request</th>
+          <th>Client</th>        
+        </tr>
+      </thead> 
+      <tfoot>
+        <tr>
+          <th>Request ID</th>
+          <th>Request Name</th>
+          <th>Submited</th>
+          <th>Date Submitted</th>
+          <th>Client Name</th>
+          <th>Request</th>
+          <th>Client</th>
+        </tr>
+      </tfoot>
+      <tbody>
+        {% for request in requests%}
+        <tr>
+          <td>{{request.id}}</td>
+          <td>{{request.name}}</td>
+          <td> 
+            {% if request.submitted%}
+              <button class="button is-success">
+                <span class="icon is-small">
+                  True
+                </span>
+              </button>
+            {%else %}
+            <button class="button is-warning">
+              <span class="icon is-small">
+                False
+              </span>
+            </button>
+            {% endif %}
+          </td>
+          <td>{{request.date_submitted}}</td>
+          <td>{{request.client.name}}</td>
+          <td> 
+            <form action="{% url 'client_view' %}" method="POST">
+              {% csrf_token %}
+              <button class="button is-success is-light small" name="client_id" value="{{request.client.id}}">View client</button>
+            </form>
+          </td>
+          <td> 
+            <form action="{% url 'choose_request' %}" method="POST">
+              {% csrf_token %}
+              <button class="button is-info is-light small" type="submit" name="request_id" value="{{request.id}}">View Files</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor%}
+       
+      </tbody>
+    </table>
+    <div/>
+    <div id="client_modal" class="modal">
+      {% comment %} <div class="modal-background"></div> {% endcomment %}
+      <div class="box is-white" >
+      <div class="modal-content">
+        <form action="{% url 'requests' %}" method="POST">
+          {% csrf_token %}
+        <div class="select">
+          <label class="label">Client Name</label>
+          <select name="client_id">
+            {%for client in clients%}
+              <option value={{client.id}}>{{client.name}} - {{client.email}}</option>
+            {%endfor%}
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="label">Request Description</label>
+          <div class="control">
+            <input class="input" name="request" type="text" placeholder="Request Description">
+          </div>
+        </div>
+        
+        <footer class="modal-card-foot is-white">
+          <button class="is-success button" type="submit">Create Request</button>
+          <button class="button" type="button">Cancel</button>
+        </footer>
+      </form>
+      </div>
+
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    </div>
+    <div class="container">
+      <div class="columns">{% block content %} {% endblock content %}</div>
+    </div>
+  </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Functions to open and close a modal
+      function openModal($el) {
+        $el.classList.add('is-active');
+      }
+    
+      function closeModal($el) {
+        $el.classList.remove('is-active');
+      }
+    
+      function closeAllModals() {
+        (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+          closeModal($modal);
+        });
+      }
+    
+      // Add a click event on buttons to open a specific modal
+      (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+        const modal = $trigger.dataset.target;
+        console.log("🚀 ~ file: clients.html:171 ~ modal:", modal)
+        
+        const $target = document.getElementById(modal);
+    
+        $trigger.addEventListener('click', () => {
+          openModal($target);
+        });
+      });
+    
+      // Add a click event on various child elements to close the parent modal
+      (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+        const $target = $close.closest('.modal');
+    
+        $close.addEventListener('click', () => {
+          closeModal($target);
+        });
+      });
+    
+      // Add a keyboard event to close all modals
+      document.addEventListener('keydown', (event) => {
+        const e = event || window.event;
+    
+        if (e.keyCode === 27) { // Escape key
+          closeAllModals();
+        }
+      });
+    });
+  </script>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Include the Bulma CSS framework for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+    <title>Client Dashboard</title>
+  </head>
+  <body>
+    <section class="hero is-small is-success mb-4">
+      <div class="hero-body columns">
+        <div class="column iis-three-quarters is-vcentered">
+          <h1 class="title is-4">Individual Client</h1>
+          <p class="subtitle is-6">This page allows you to view all the clients which you have sent a request for documents to.</p>
+        </div>
+        <div class="column is-vcentered is-right">
+          <button class="button small is-dark"><a href="{% url 'clients' %}">All Clients</a></button>
+          <button class="button small is-dark"><a href="{% url 'requests' %}">All Requests</a></button>
+          <button class="button small is-dark"><a href="{% url 'documents' %}">All Documents</a></button>
+        </div>
+      </div>
+    </section>
+    <div class="block is-full">
+      <div class="container">
+        <h1 class="title is-4">Client</h1>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="container block iis-is-four-fifths">
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="list_Table">
+          <thead>
+            <tr>
+              <th>Client ID</th>
+              <th>Name</th>
+              <th>Surname</th>
+              <th>Email Address</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for client in clients%}
+            <tr>
+              <form action="{% url 'client_view' %}" method="POST">
+                {% csrf_token %}
+                <td>{{client.id}}</td>
+                <td>
+                  <input class="input" type="text" placeholder="Client Name" name="name" value="{{client.name}}" />
+                </td>
+                <td>
+                  <input class="input" type="text" placeholder="Client Surnmae" name="surname" value="{{client.surname}}" />
+                </td>
+                <td>
+                  <input class="input" type="email" placeholder="Client Email" name="email" value="{{client.email}}" />
+                </td>
+                <td>
+                  <button class="button is-info is-light small" type="submit" name="client_id" value="{{client.id}}">Save Changes</button>
+                  <form action="{% url 'client_view' %}" method="POST">
+                    <button class="button is-info is-warning small" type="submit" name="delete_id" value="{{client.id}}">Delete User</button>
+                  </form>
+                </td>
+              </form>
+            </tr>
+            {% endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="block is-full">
+      <div class="container">
+        <h1 class="title is-4">Requests</h1>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="container iis-is-four-fifths">
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="list_Table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Doc Name</th>
+              <th>Submited</th>
+              <th>Date Submitted</th>
+              <th>Actions</th>
+              <th>Documents</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for request in requests%}
+            <tr>
+              <form action="{% url 'client_view_request' %}" method="POST">
+                {% csrf_token %}
+                <td>{{request.id}}</td>
+                <td>
+                  <input class="input" type="text" placeholder="Request Name" name="name" value="{{request.name}}" />
+                </td>
+                <td>
+                  {% if request.submitted%}
+                  <button class="button is-success is-light">Yes</button>
+                  {%else %}
+                  <button class="button is-warning is-light">NO</button>
+                  {% endif %}
+                </td>
+                <td>{{request.date_submitted}}</td>
+                <td>
+                  <button class="button is-info is-light small" type="submit" name="request_id" value="{{request.id}}">Save Changes</button>
+                  <form action="{% url 'client_view_request' %}" method="POST">
+                    <button class="button is-info is-warning small" type="submit" name="delete_id" value="{{request.id}}">Delete Request & Docs</button>
+                  </form>
+                </td>
+              </form>
+              <td>
+                <form action="{% url 'choose_request' %}" method="POST">
+                  {% csrf_token %}
+                  <button class="button is-info is-light small" type="submit" name="request_id" value="{{request.id}}">View Files</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="block is-full">
+      <div class="container">
+        <h1 class="title is-4">Documents</h1>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="container iis-is-four-fifths">
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="list_Table">
+          <thead>
+            <tr>
+              <th>Doc ID</th>
+              <th>Doc Name</th>
+              <th>Date Created</th>
+              <th>Client Name</th>
+              <th>Action</th>
+              <th>Document</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for document in documents%}
+            <tr>
+              <td>{{document.id}}</td>
+              <td>{{document.name}}</td>
+              <td>{{document.date}}</td>
+              <td>{{document.client.name}}</td>
+              <td>
+                <form action="{% url 'client_view_doc' %}" method="POST">
+                  {% csrf_token %}
+                  <button class="button is-info is-warning small" type="submit" name="delete_id" value="{{document.id}}">Delete Doc</button>
+                </form>
+              </td>
+              <td>
+                <form action="{% url 'show_file' %}" target="_blank" method="POST">
+                  {% csrf_token %}
+                  <button class="button is-success is-light small" type="submit" name="name" value="{{document.document}}">View File</button>
+                </form>
+              </td>
+            </tr>
+
+            {% endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="client_modal" class="modal">
+      <div class="box is-white">
+        <div class="modal-content">
+          <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+              <input class="input" type="text" placeholder="Name" />
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Surname</label>
+            <div class="control">
+              <input class="input" type="text" placeholder="Surname" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Email</label>
+            <div class="control">
+              <input class="input" type="email" placeholder="Email input" />
+            </div>
+          </div>
+
+          <footer class="modal-card-foot is-white">
+            <button class="is-success button">Save changes</button>
+            <button class="button">Cancel</button>
+          </footer>
+        </div>
+
+        <button class="modal-close is-large" aria-label="close"></button>
+      </div>
+    </div>
+    <div class="container">
+      <div class="columns">{% block content %} {% endblock content %}</div>
+    </div>
+  </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Functions to open and close a modal
+      function openModal($el) {
+        $el.classList.add("is-active");
+      }
+
+      function closeModal($el) {
+        $el.classList.remove("is-active");
+      }
+
+      function closeAllModals() {
+        (document.querySelectorAll(".modal") || []).forEach(($modal) => {
+          closeModal($modal);
+        });
+      }
+
+      // Add a click event on buttons to open a specific modal
+      (document.querySelectorAll(".js-modal-trigger") || []).forEach(($trigger) => {
+        const modal = $trigger.dataset.target;
+
+        const $target = document.getElementById(modal);
+
+        $trigger.addEventListener("click", () => {
+          openModal($target);
+        });
+      });
+
+      // Add a click event on various child elements to close the parent modal
+      (document.querySelectorAll(".modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button") || []).forEach(($close) => {
+        const $target = $close.closest(".modal");
+
+        $close.addEventListener("click", () => {
+          closeModal($target);
+        });
+      });
+
+      // Add a keyboard event to close all modals
+      document.addEventListener("keydown", (event) => {
+        const e = event || window.event;
+
+        if (e.keyCode === 27) {
+          // Escape key
+          closeAllModals();
+        }
+      });
+    });
+  </script>
+</html>

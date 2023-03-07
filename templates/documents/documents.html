@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Include the Bulma CSS framework for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+    <title>Documents</title>
+  </head>
+  <body>
+    <section class="hero is-small is-success mb-4">
+      
+      <div class="hero-body columns">
+        <div class="column iis-three-quarters is-vcentered">
+          <h1 class="title is-4">Dashboard</h1>
+          <p class="subtitle is-5">This page allows you to view all the documents submitted.</p>
+        </div>
+        <div class="column is-vcentered is-right">
+          <button class="button small is-dark" ><a href="{% url 'clients' %}">All Clients</a></button>
+          <button class="button small is-dark"><a href="{% url 'requests' %}">All Requests</a></button>
+        </div>
+      </div>
+    </section>
+    <div class="block">
+    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+      <thead>
+        <tr>
+          <th>Doc Name</th>
+          <th>Date Created</th>
+          <th>Client Name</th>
+          <th>Document</th>
+          <th>Client</th>
+        </tr>
+      </thead> 
+      <tfoot>
+        <tr>
+          <th>Doc Name</th>
+          <th>Date Created</th>
+          <th>Client Name</th>
+          <th>Document</th>
+          <th>Client</th>
+        </tr>
+      </tfoot>
+      <tbody>
+        {% for document in documents%}
+        <tr>
+          <td>{{document.name}}</td>
+          <td>{{document.date}}</td>
+          <td>{{document.client.name}}</td>
+          <td> 
+            <form action="{% url 'show_file' %}" target="_blank" method="POST">
+              {% csrf_token %}
+              <button class="button is-success is-light small" type="submit" name="name" value={{document.document}}>< href="{% url 'show_file' %}" >View File</button>
+            </form>
+          </td>
+          <td> <button class="button is-info is-light small">View Client</button></td>
+        </tr>
+        {% endfor%}
+       
+      </tbody>
+    </table>
+    <div/>
+    <div id="client_modal" class="modal">
+      <div class="modal-background"></div>
+      <div class="box is-white" >
+      <div class="modal-content">
+        <div class="field">
+          <label class="label">Name</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="Text input">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Surname</label>
+          <div class="control">
+            <input class="input is-success" type="text" placeholder="Text input">
+          </div>
+        </div>
+        
+        <div class="field">
+          <label class="label">Email</label>
+          <div class="control">
+            <input class="input is-danger" type="email" placeholder="Email input">
+          </div>
+        </div>
+    
+        
+        <div class="field is-grouped">
+          <div class="control">
+            <button class="button is-link">Submit</button>
+          </div>
+          <div class="control">
+            <button class="button is-link is-light" data-target="client_modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+    </div>
+    <div class="container">
+      <div class="columns">{% block content %} {% endblock content %}</div>
+    </div>
+  </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Functions to open and close a modal
+      function openModal($el) {
+        $el.classList.add('is-active');
+      }
+    
+      function closeModal($el) {
+        $el.classList.remove('is-active');
+      }
+    
+      function closeAllModals() {
+        (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+          closeModal($modal);
+        });
+      }
+    
+      // Add a click event on buttons to open a specific modal
+      (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+        const modal = $trigger.dataset.target;
+        console.log("🚀 ~ file: clients.html:171 ~ modal:", modal)
+        
+        const $target = document.getElementById(modal);
+    
+        $trigger.addEventListener('click', () => {
+          openModal($target);
+        });
+      });
+    
+      // Add a click event on various child elements to close the parent modal
+      (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+        const $target = $close.closest('.modal');
+    
+        $close.addEventListener('click', () => {
+          closeModal($target);
+        });
+      });
+    
+      // Add a keyboard event to close all modals
+      document.addEventListener('keydown', (event) => {
+        const e = event || window.event;
+    
+        if (e.keyCode === 27) { // Escape key
+          closeAllModals();
+        }
+      });
+    });
+  </script>
+</html>

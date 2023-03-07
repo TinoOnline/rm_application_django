@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Include the Bulma CSS framework for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+    <title>Client Dashboard</title>
+  </head>
+  <body>
+    <section class="hero is-small is-success mb-4">
+      <div class="hero-body columns">
+        <div class="column iis-three-quarters is-vcentered">
+          <h1 class="title is-4">Documents Upload</h1>
+          <p class="subtitle is-6">This page allows you to upload all the documents for the request specified by your RM.</p>
+        </div>
+        <form method="GET" action="{% url 'client_auth' %}">
+          {% csrf_token %}
+          <div class="column is-vcentered is-right">
+            <button class="button small is-dark">Exit</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <div class="block">
+      <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" id="list_Table">
+        <thead>
+          <tr>
+            <th>Request Name</th>
+            <th>Documents Submitted</th>
+            <th>Action</th>
+            <th>Submit</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for request in requests%}
+          <tr>
+            <form method="POST" class="post-form" action="{% url 'doc_form' %}" enctype="multipart/form-data">
+              {% csrf_token %} {% comment %} <input id="id_document" name="document" type="file" /> {% endcomment %}
+              <td>{{request.name}}</td>
+              <td>{{request.submitted}}</td>
+              <td>
+                <div>{{ form.as_p }}</div>
+              </td>
+              <td>
+                <input hidden="true" id="id_document" name="client_id" value="{{client_id}}" type="text" />
+                <div class="column is-vcentered is-right">
+                  <button class="button small is-dark" name="request_id" value="{{request.id}}">Submit Document</button>
+                </div>
+              </td>
+            </form>
+          </tr>
+          {% endfor%}
+        </tbody>
+      </table>
+      <div />
+    </div>
+  </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Functions to open and close a modal
+      function openModal($el) {
+        $el.classList.add("is-active");
+      }
+
+      function closeModal($el) {
+        $el.classList.remove("is-active");
+      }
+
+      function closeAllModals() {
+        (document.querySelectorAll(".modal") || []).forEach(($modal) => {
+          closeModal($modal);
+        });
+      }
+
+      // Add a click event on buttons to open a specific modal
+      (document.querySelectorAll(".js-modal-trigger") || []).forEach(($trigger) => {
+        const modal = $trigger.dataset.target;
+
+        const $target = document.getElementById(modal);
+
+        $trigger.addEventListener("click", () => {
+          openModal($target);
+        });
+      });
+
+      // Add a click event on various child elements to close the parent modal
+      (document.querySelectorAll(".modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button") || []).forEach(($close) => {
+        const $target = $close.closest(".modal");
+
+        $close.addEventListener("click", () => {
+          closeModal($target);
+        });
+      });
+
+      // Add a keyboard event to close all modals
+      document.addEventListener("keydown", (event) => {
+        const e = event || window.event;
+
+        if (e.keyCode === 27) {
+          // Escape key
+          closeAllModals();
+        }
+      });
+    });
+  </script>
+</html>
